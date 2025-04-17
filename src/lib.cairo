@@ -1,10 +1,10 @@
-mod base {
-    mod errors;
-    mod types;
+pub mod base {
+    pub mod errors;
+    pub mod types;
 }
-mod interfaces {
-    mod IUnichain;
+pub mod interfaces {
+    pub mod IUnichain;
 }
-mod unichain {
-    mod Unichain;
+pub mod unichain {
+    pub mod Unichain;
 }

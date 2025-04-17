@@ -11,5 +11,5 @@ pub struct Progress {
     pub course_id: u256,
     pub student: starknet::ContractAddress,
     pub completed: bool,
-    pub grade: u8, // 0-100
+    pub grade: u8 // 0-100
 }
