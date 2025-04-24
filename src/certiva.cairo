@@ -1,13 +1,13 @@
 #[starknet::contract]
 pub mod Certiva {
+    use core::array::ArrayTrait;
+    use core::byte_array::ByteArray;
     use core::starknet::storage::{
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
         StoragePointerWriteAccess,
     };
     use starknet::{ContractAddress, contract_address_const, get_caller_address};
     use crate::Interfaces::ICertiva::ICertiva;
-    use core::array::ArrayTrait;
-    use core::byte_array::ByteArray;
 
     #[storage]
     struct Storage {
@@ -127,12 +127,12 @@ pub mod Certiva {
         ) {
             // Get caller address (must be a registered university)
             let caller = get_caller_address();
-            
+
             // Check that the caller is a registered university
             let university = self.university.read(caller);
             let zero_address = contract_address_const::<0>();
             assert(university.wallet_address != zero_address, 'University not registered');
-            
+
             // Create certificate with university domain and active status
             let new_certificate = Certificate {
                 certificate_meta_data: certificate_meta_data.clone(),
@@ -142,48 +142,48 @@ pub mod Certiva {
                 issuer_address: caller,
                 isActive: true,
             };
-            
+
             // Generate a simple key (just using 1 for simplicity)
             let cert_key: felt252 = 1;
-            
+
             // Store certificate
             self.certificates.write(cert_key, new_certificate.clone());
-            
+
             // Emit certificate issued event
             self.emit(Event::certificate_issued(new_certificate));
         }
-        
+
         // Function to issue multiple certificates at once by a registered university
         fn bulk_issue_certificates(
-            ref self: ContractState, 
+            ref self: ContractState,
             certificate_meta_data_array: Array<ByteArray>,
             hashed_key_array: Array<ByteArray>,
             certificate_id_array: Array<ByteArray>,
         ) {
             // Get caller address (must be a registered university)
             let caller = get_caller_address();
-            
+
             // Check that the caller is a registered university
             let university = self.university.read(caller);
             let zero_address = contract_address_const::<0>();
             assert(university.wallet_address != zero_address, 'University not registered');
-            
+
             // Validate input arrays have the same length
             let len = certificate_id_array.len();
             assert(certificate_meta_data_array.len() == len, 'Arrays length mismatch');
             assert(hashed_key_array.len() == len, 'Arrays length mismatch');
-            
+
             // Issue certificates in bulk
             let mut i: u32 = 0;
             while i != len {
                 // Use index+1 as key to give each certificate a unique key
                 let cert_key: felt252 = (i + 1).into();
-                
+
                 // Process certificate
                 let certificate_meta_data = certificate_meta_data_array.at(i).clone();
                 let hashed_key = hashed_key_array.at(i).clone();
                 let certificate_id = certificate_id_array.at(i).clone();
-                
+
                 // Create certificate
                 let new_certificate = Certificate {
                     certificate_meta_data: certificate_meta_data,
@@ -193,24 +193,25 @@ pub mod Certiva {
                     issuer_address: caller,
                     isActive: true,
                 };
-                
-                // Store certificate 
+
+                // Store certificate
                 self.certificates.write(cert_key, new_certificate);
-                
+
                 i += 1;
             }
-            
+
             // Convert len to felt252 and emit bulk certificates issued event
             let count_felt: felt252 = len.into();
-            
+
             // Emit bulk certificates issued event
-            self.emit(
-                Event::certificates_bulk_issued(
-                    BulkCertificatesIssued { count: count_felt, issuer: caller }
-                )
-            );
+            self
+                .emit(
+                    Event::certificates_bulk_issued(
+                        BulkCertificatesIssued { count: count_felt, issuer: caller },
+                    ),
+                );
         }
-        
+
         // Function to get certificate details by certificate ID
         fn get_certificate(self: @ContractState, certificate_id: ByteArray) -> Certificate {
             // For simplicity, we'll assume cert_id "CS-2023-001" is stored at key 1
@@ -219,14 +220,14 @@ pub mod Certiva {
                 // Check first two chars to determine key
                 let first_char = certificate_id.at(0).unwrap();
                 let second_char = certificate_id.at(1).unwrap();
-                
+
                 if first_char == 'C' && second_char == 'S' {
                     return self.certificates.read(1);
                 } else if first_char == 'E' && second_char == 'N' {
                     return self.certificates.read(2);
                 }
             }
-            
+
             // Default fallback
             self.certificates.read(1)
         }
