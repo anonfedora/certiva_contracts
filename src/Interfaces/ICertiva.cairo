@@ -1,6 +1,7 @@
 use starknet::ContractAddress;
 use crate::certiva::Certiva::{University, Certificate};
 use core::array::Array;
+use core::byte_array::ByteArray;
 
 #[starknet::interface]
 pub trait ICertiva<TContractState> {
