@@ -374,4 +374,65 @@ mod tests {
         dispatcher.bulk_issue_certificates(meta_data_array, hashed_key_array, cert_id_array);
         stop_cheat_caller_address(dispatcher.contract_address);
     }
+
+    #[test]
+    fn test_get_certificate_by_issuer_found() {
+        // Deploy the contract
+        let (owner, dispatcher) = setup();
+        
+        let university_wallet = register_test_university(owner, dispatcher);
+
+        // Certificate data
+        let certificate_meta_data = "Student: Usman Alfaki, Degree: Computer Science";
+        let hashed_key = "abcdef123456";
+        let certificate_id = "CS-2023-001";
+
+        // Clone before using in issue_certificate
+        let cert_meta_clone1 = certificate_meta_data.clone();
+        let hashed_key_clone1 = hashed_key.clone();
+        let cert_id_clone1 = certificate_id.clone();
+
+        let mut spy = spy_events();
+
+        // make function call
+        start_cheat_caller_address(dispatcher.contract_address, university_wallet);
+        dispatcher.issue_certificate(cert_meta_clone1, hashed_key_clone1, cert_id_clone1);
+
+        stop_cheat_caller_address(dispatcher.contract_address);
+        
+        start_cheat_caller_address(dispatcher.contract_address, university_wallet);
+        
+        dispatcher.get_certicate_by_issuer();
+
+        let expected_event = Certiva::Event::CertificateFound(
+            Certiva::CertificateFound { issuer: university_wallet },
+        );
+        spy.assert_emitted(@array![(dispatcher.contract_address, expected_event)]);
+
+        stop_cheat_caller_address(dispatcher.contract_address);
+    }
+
+    #[test]
+    fn test_get_certificate_by_issuer_not_found() {
+        // Deploy the contract
+        let (owner, dispatcher) = setup();
+
+        // Setup event spy
+        let mut spy = spy_events();
+
+        // Set caller address for the transaction
+        let caller: ContractAddress = 'Daniel'.try_into().unwrap();
+        start_cheat_caller_address(dispatcher.contract_address, caller);
+
+        // Call the function
+        dispatcher.get_certicate_by_issuer();
+
+        // Assert that the CertificateNotFound event is emitted
+        let expected_event = Certiva::Event::CertificateNotFound(
+            Certiva::CertificateNotFound { issuer: caller },
+        );
+        spy.assert_emitted(@array![(dispatcher.contract_address, expected_event)]);
+
+        stop_cheat_caller_address(dispatcher.contract_address);
+    }
 }
