@@ -201,7 +201,7 @@ mod tests {
         // Certificate data
         let certificate_meta_data = "Student: Usman Alfaki, Degree: Computer Science";
         let hashed_key = "abcdef123456";
-        let certificate_id = "CS-2023-001";
+        let certificate_id = 'CS-2023-001';
 
         // Clone variables before issuing certificate
         let cert_meta_clone = certificate_meta_data.clone();
@@ -236,7 +236,7 @@ mod tests {
         // Certificate data
         let certificate_meta_data = "Student: Usman Alfaki, Degree: Computer Science";
         let hashed_key = "abcdef123456";
-        let certificate_id = "CS-2023-001";
+        let certificate_id = 'CS-2023-001';
 
         // Try to issue certificate as non-university address
         let non_university = contract_address_const::<'non_university'>();
@@ -253,7 +253,7 @@ mod tests {
         // Certificate data
         let certificate_meta_data = "Student: Usman Alfaki, Degree: Computer Science";
         let hashed_key = "abcdef123456";
-        let certificate_id = "CS-2023-001";
+        let certificate_id = 'CS-2023-001';
 
         // Clone before using in issue_certificate
         let cert_meta_clone1 = certificate_meta_data.clone();
@@ -307,8 +307,8 @@ mod tests {
         hashed_key_array.append("hash2");
 
         let mut cert_id_array = ArrayTrait::new();
-        cert_id_array.append("CS-2023-001");
-        cert_id_array.append("ENG-2023-001");
+        cert_id_array.append('CS-2023-001');
+        cert_id_array.append('ENG-2023-001');
 
         let mut spy = spy_events();
 
@@ -332,8 +332,8 @@ mod tests {
 
         // With our improved key derivation function, we can now verify individual certificates
         // by retrieving them using their certificate_id
-        let cert_id1 = "CS-2023-001";
-        let cert_id2 = "ENG-2023-001";
+        let cert_id1 = 'CS-2023-001';
+        let cert_id2 = 'ENG-2023-001';
 
         let stored_cert1 = dispatcher.get_certificate(cert_id1);
         let stored_cert2 = dispatcher.get_certificate(cert_id2);
@@ -366,8 +366,8 @@ mod tests {
         // Missing second hash to cause mismatch
 
         let mut cert_id_array = ArrayTrait::new();
-        cert_id_array.append("CS-2023-001");
-        cert_id_array.append("ENG-2023-001");
+        cert_id_array.append('CS-2023-001');
+        cert_id_array.append('ENG-2023-001');
 
         // Attempt to issue certificates with mismatched arrays
         start_cheat_caller_address(dispatcher.contract_address, university_wallet);
