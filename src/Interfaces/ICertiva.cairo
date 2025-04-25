@@ -33,4 +33,5 @@ pub trait ICertiva<TContractState> {
     );
 
     fn get_certificate(self: @TContractState, certificate_id: ByteArray) -> Certificate;
+    fn get_certicate_by_issuer(ref self: TContractState) -> Array<Certificate>;
 }
