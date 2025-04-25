@@ -9,6 +9,7 @@ pub mod Certiva {
     use starknet::{ContractAddress, contract_address_const, get_caller_address};
     use crate::Interfaces::ICertiva::ICertiva;
 
+
     #[storage]
     struct Storage {
         owner: ContractAddress,
@@ -47,12 +48,24 @@ pub mod Certiva {
         pub issuer: ContractAddress,
     }
 
+    #[derive(Drop, starknet::Event)]
+    pub struct CertificateFound {
+        pub issuer: ContractAddress,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    pub struct CertificateNotFound {
+        pub issuer: ContractAddress,
+    }
+
     #[event]
     #[derive(Drop, starknet::Event)]
     pub enum Event {
         university_created: University,
         certificate_issued: Certificate,
         certificates_bulk_issued: BulkCertificatesIssued,
+        CertificateFound: CertificateFound,
+        CertificateNotFound: CertificateNotFound,
     }
 
     #[abi(embed_v0)]
@@ -230,6 +243,38 @@ pub mod Certiva {
 
             // Default fallback
             self.certificates.read(1)
+        }
+
+        // Function to get Certificate details by issuer address
+        fn get_certicate_by_issuer(ref self: ContractState) -> Array<Certificate> {
+            let caller = get_caller_address();
+            let mut certificates_by_issuer: Array<Certificate> = ArrayTrait::new();
+            let mut found: bool = false;
+
+            // Initialize the index
+            let mut i: usize = 1;
+
+            // Define a maximum number of iterations to prevent infinite loops
+            let max_iterations: usize = 101;
+
+            // Loop while the index is less than the maximum number of iterations
+            while i != max_iterations {
+                let certificate = self.certificates.read(i.into());
+                if certificate.issuer_address == caller {
+                    certificates_by_issuer.append(certificate);
+                    found = true;
+                }
+
+                i = i + 1;
+            }
+
+            if found {
+                self.emit(Event::CertificateFound(CertificateFound { issuer: caller }));
+            } else {
+                self.emit(Event::CertificateNotFound(CertificateNotFound { issuer: caller }));
+            }
+
+            certificates_by_issuer
         }
     }
 }
