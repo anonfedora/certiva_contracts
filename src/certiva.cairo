@@ -70,7 +70,6 @@ pub mod Certiva {
 
     #[abi(embed_v0)]
     impl CertivaImpl of ICertiva<ContractState> {
-
         // fn to register university
         // only contract owner can register university
         fn register_university(
@@ -169,7 +168,6 @@ pub mod Certiva {
 
             let mut i: u32 = 0;
             while i != len {
-
                 let certificate_meta_data = certificate_meta_data_array.at(i).clone();
                 let hashed_key = hashed_key_array.at(i).clone();
                 let certificate_id = certificate_id_array.at(i).clone();
@@ -209,13 +207,8 @@ pub mod Certiva {
             let mut certificates_by_issuer: Array<Certificate> = ArrayTrait::new();
             let mut found: bool = false;
 
-            // Initialize the index
             let mut i: usize = 1;
-
-            // Define a maximum number of iterations to prevent infinite loops
             let max_iterations: usize = 101;
-
-            // Loop while the index is less than the maximum number of iterations
             while i != max_iterations {
                 let certificate = self.certificates.read(i.into());
                 if certificate.issuer_address == caller {

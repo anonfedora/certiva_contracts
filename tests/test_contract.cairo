@@ -379,7 +379,7 @@ mod tests {
     fn test_get_certificate_by_issuer_found() {
         // Deploy the contract
         let (owner, dispatcher) = setup();
-        
+
         let university_wallet = register_test_university(owner, dispatcher);
 
         // Certificate data
@@ -399,9 +399,9 @@ mod tests {
         dispatcher.issue_certificate(cert_meta_clone1, hashed_key_clone1, cert_id_clone1);
 
         stop_cheat_caller_address(dispatcher.contract_address);
-        
+
         start_cheat_caller_address(dispatcher.contract_address, university_wallet);
-        
+
         dispatcher.get_certicate_by_issuer();
 
         let expected_event = Certiva::Event::CertificateFound(
